@@ -3,19 +3,12 @@
 
 __global__ void vecAdd(float *in1, float *in2, float *out, int len) {
   //@@ Insert code to implement vector addition here
-  int size = len * sizeof(float);
-  float* in1D;
-  float* in2D;
-  float* outD;
   
-  //Transfer in1 and in2 to device memory
-  cudaMalloc((void**)) &in1D, size);
-  cudaMalloc((void**)) &in2D, size);
-  cudaMemcpy(in1D, in1, size, cudaMemcpyHostToDevice);
-  cudaMemcpy(in2D, in2, size, cudaMemcpyHostToDevice);
+  
   
   //Allocate memory for the output
-  cudaMalloc((void**) &outD, size);
+  
+  
 }
 
 int main(int argc, char **argv) {
@@ -42,12 +35,19 @@ int main(int argc, char **argv) {
 
   wbTime_start(GPU, "Allocating GPU memory.");
   //@@ Allocate GPU memory here
-
+  int size = len * sizeof(float);
+  float* in1D;
+  float* in2D;
+  float* outD;
+  cudaMalloc((void**)) &in1D, size);
+  cudaMalloc((void**)) &in2D, size);
+  cudaMalloc((void**) &outD, size);
   wbTime_stop(GPU, "Allocating GPU memory.");
 
   wbTime_start(GPU, "Copying input memory to the GPU.");
   //@@ Copy memory to the GPU here
-  
+  cudaMemcpy(in1D, in1, size, cudaMemcpyHostToDevice);
+  cudaMemcpy(in2D, in2, size, cudaMemcpyHostToDevice);
   wbTime_stop(GPU, "Copying input memory to the GPU.");
 
   //@@ Initialize the grid and block dimensions here
@@ -60,12 +60,14 @@ int main(int argc, char **argv) {
 
   wbTime_start(Copy, "Copying output memory to the CPU");
   //@@ Copy the GPU memory back to the CPU here
-
+  cudaMemcpy(out, outD, cudaMemcpyDevicetoHost);
   wbTime_stop(Copy, "Copying output memory to the CPU");
 
   wbTime_start(GPU, "Freeing GPU Memory");
   //@@ Free the GPU memory here
-
+  cudaFree(in1D);
+  cudaFree(in2D);
+  cudaFree(outD);
   wbTime_stop(GPU, "Freeing GPU Memory");
 
   wbSolution(args, hostOutput, inputLength);
